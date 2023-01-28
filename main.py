@@ -6,17 +6,17 @@ import numpy as np
 import time
 
 class Vehicle:
-    def __init__(self, lane, speed, accln, length, width, time_):
+    def __init__(self, lane, speed, accln, length, width, time_update):
         self.lane = lane
         self.speed = speed
         self.accln = accln
         self.x = 0
-        self.time_ = time_
+        self.time_update = time_update
         self.length = length
         self.width = width
         
     def move(self):
-        self.x += self.speed*self.time_ + 0.5*self.accln * self.time_*self.time_
+        self.x += self.speed*self.time_update + 0.5*self.accln * self.time_update*self.time_update
         
     def change_lane(self, vehicles):
         possible_lanes = [i for i in range(sim.num_lanes) if i != self.lane]
