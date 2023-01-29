@@ -56,9 +56,6 @@ class Simulation:
 
     def visualize(self):
         plt.clf()
-        # for lane in self.num_lanes:
-        #     # x=np.linspace(0,10,self.length)
-        #     plt.plot(lane)
         for v in self.vehicles:
             plt.gca().add_patch(plt.Rectangle((v.x, v.lane*self.lane_width-v.width/2), v.length, v.width, fill=True))
         plt.xlim(0, self.length)
