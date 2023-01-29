@@ -16,7 +16,8 @@ class Vehicle:
         self.width = width
         
     def move(self):
-        self.x += self.speed*self.time_update + 0.5*self.accln * self.time_update*self.time_update
+        self.speed += self.accln
+        self.x += self.speed
         
     def change_lane(self, vehicles):
         possible_lanes = [i for i in range(sim.num_lanes) if i != self.lane]
