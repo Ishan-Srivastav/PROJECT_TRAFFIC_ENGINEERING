@@ -63,6 +63,6 @@ class Simulation:
         plt.ylim(-1, self.num_lanes*self.lane_width)
         plt.pause(0.01)
 
-sim = Simulation(2, 100, 0.1, 3.5)
+sim = Simulation(6, 1000, 0.1, 3.5)
 sim.run()
 plt.show()
