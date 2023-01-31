@@ -5,6 +5,12 @@ plt.style.use('seaborn-whitegrid')
 import numpy as np
 import time
 
+#BASE INPUTS
+NO_OF_LANES = 3
+LENGTH_OF_ROAD = 1000 #in meters
+TIME_INTERVAL_PER_FRAME = 0.1 #in seconds
+LANE_WIDTH = 3.5 #in meters
+FREQUENCY_OF_SPAWN = 0.1 #number less than 1 greater than 0, the higher the number the larger vehicles spawned 
 class Vehicle:
     def __init__(self, lane, speed, accln, length, width, time_update):
         self.lane = lane
@@ -45,7 +51,7 @@ class Simulation:
 
     def run(self):
         for i in range(self.length):
-            if random.random() < 0.1:
+            if random.random() < FREQUENCY_OF_SPAWN:
                 self.spawn_vehicle()
             for v in self.vehicles:
                 v.move()
@@ -63,6 +69,7 @@ class Simulation:
         plt.ylim(-1, self.num_lanes*self.lane_width)
         plt.pause(0.01)
 
-sim = Simulation(6, 1000, 0.1, 3.5)
+
+sim = Simulation(NO_OF_LANES, LENGTH_OF_ROAD, TIME_INTERVAL_PER_FRAME, LANE_WIDTH)
 sim.run()
 plt.show()
