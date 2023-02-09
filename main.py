@@ -7,10 +7,11 @@ import time
 
 #BASE INPUTS
 NO_OF_LANES = 3
-LENGTH_OF_ROAD = 1000 #in meters
+LENGTH_OF_ROAD = 100 #in meters
 TIME_INTERVAL_PER_FRAME = 0.1 #in seconds
 LANE_WIDTH = 3.5 #in meters
-FREQUENCY_OF_SPAWN = 0.1 #number less than 1 greater than 0, the higher the number the larger vehicles spawned 
+FREQUENCY_OF_SPAWN = 0.7 #number less than 1 greater than 0, the higher the number the larger vehicles spawned 
+
 class Vehicle:
     def __init__(self, lane, speed, accln, length, width, time_update):
         self.lane = lane
@@ -20,10 +21,16 @@ class Vehicle:
         self.time_update = time_update
         self.length = length
         self.width = width
-        
+
+    def deccelerate(self, vehicles):
+        vehicles_ahead = [v for v in vehicles if v.x > self.x and v.lane == self.lane]
+        if self.speed < vehicles_ahead.speed[0]:
+            self.accln = -1
+    
     def move(self):
         self.speed += self.accln
         self.x += self.speed
+                    
         
     def change_lane(self, vehicles):
         possible_lanes = [i for i in range(sim.num_lanes) if i != self.lane]
