@@ -4,13 +4,16 @@ import matplotlib.pyplot as plt
 plt.style.use('seaborn-whitegrid')
 import numpy as np
 import time
+import csv
 
 #BASE INPUTS
 NO_OF_LANES = 3
 LENGTH_OF_ROAD = 100 #in meters
 TIME_INTERVAL_PER_FRAME = 0.1 #in seconds
 LANE_WIDTH = 3.5 #in meters
-FREQUENCY_OF_SPAWN = 0.7 #number less than 1 greater than 0, the higher the number the larger vehicles spawned 
+FREQUENCY_OF_SPAWN = 1 #number less than 1 greater than 0, the higher the number the larger vehicles spawned 
+filename = "vehicles_spawned.csv"
+
 
 class Vehicle:
     def __init__(self, id, lane, speed, accln, length, width, time_update):
@@ -52,13 +55,13 @@ class Simulation:
         self.vehicles = []
         self.lane_width = lane_width
         
-    def spawn_vehicle(self):
+    def spawn_vehicle(self,INDEX):
         lane = random.randint(0, self.num_lanes - 1)
         speed = random.randint(2, 10)
         acceleration = random.randint(2,3)
         length = random.randint(2, 5)
         width = random.randint(1, 2)
-        id = str(length) + "_" + str(width)
+        id = str(INDEX) + "_" + str(length) + "_" + str(width)
         self.vehicles.append(Vehicle(id, lane, speed, acceleration,length, width, self.time_interval))
         
 
@@ -70,16 +73,22 @@ class Simulation:
                 # print(veh_ahead[0].id, veh_ahead[0].x , veh_ahead[0].lane, veh_ahead[0].speed, veh_ahead[0].accln)
         return veh_ahead
     
-    def print_vehicles(self):
+    def csv_print_vehicles(self):
+        rows =[[]]
         for v in self.vehicles:
-            print(v.id, v.x, v.lane, v.speed, v.accln, v.length, v.width)
+            temp = [v.id, v.x, v.lane, v.speed, v.accln, v.length, v.width]
+            rows.append(temp)
+        with open(filename, 'w', newline="") as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(rows)
 
     def run(self):
+        index = 1
         for i in range(self.length):
             if random.random() < FREQUENCY_OF_SPAWN:
-                self.spawn_vehicle()
+                self.spawn_vehicle(index)
                 veh = self.vehicles_ahead()
-                self.print_vehicles()
+                index+=1
             for v in self.vehicles:
                 v.move(self.vehicles)
                 if random.random() < 0.1:
@@ -87,6 +96,7 @@ class Simulation:
                 self.vehicles[:] = [v for v in self.vehicles if v.x < self.length]
             self.visualize()
             time.sleep(self.time_interval)
+        self.csv_print_vehicles()
 
     def visualize(self):
         plt.clf()
