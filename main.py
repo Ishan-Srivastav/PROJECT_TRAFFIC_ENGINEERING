@@ -13,7 +13,8 @@ LANE_WIDTH = 3.5 #in meters
 FREQUENCY_OF_SPAWN = 0.7 #number less than 1 greater than 0, the higher the number the larger vehicles spawned 
 
 class Vehicle:
-    def __init__(self, lane, speed, accln, length, width, time_update):
+    def __init__(self, id, lane, speed, accln, length, width, time_update):
+        self.id = id
         self.lane = lane
         self.speed = speed
         self.accln = accln
@@ -22,12 +23,15 @@ class Vehicle:
         self.length = length
         self.width = width
 
-    def deccelerate(self, vehicles):
-        vehicles_ahead = [v for v in vehicles if v.x > self.x and v.lane == self.lane]
-        if self.speed < vehicles_ahead.speed[0]:
-            self.accln = -1
+    # def deccelerate(self, vehicles_ahead):
+    #     vehicles_ahead = [v for v in vehicles_ahead if v.x > self.x and v.lane == self.lane]
+    #     vehicle = vehicles_ahead[0]
+    #     if self.speed < vehicles_ahead:
+    #         self.accln = -1
     
-    def move(self):
+    def move(self,vehicles):
+        # if random.random()<0.8:
+        #     self.deccelerate(vehicles)
         self.speed += self.accln
         self.x += self.speed
                     
@@ -54,14 +58,30 @@ class Simulation:
         acceleration = random.randint(2,3)
         length = random.randint(2, 5)
         width = random.randint(1, 2)
-        self.vehicles.append(Vehicle(lane, speed, acceleration,length, width, self.time_interval))
+        id = str(length) + "_" + str(width)
+        self.vehicles.append(Vehicle(id, lane, speed, acceleration,length, width, self.time_interval))
+        
+
+    def vehicles_ahead(self):
+        veh_ahead=[] 
+        for v in range(len(self.vehicles)-1):
+            if self.vehicles[v].x < self.vehicles[v+1].x and self.vehicles[v].lane == self.vehicles[v+1].lane: 
+                veh_ahead.append(self.vehicles[v])
+                # print(veh_ahead[0].id, veh_ahead[0].x , veh_ahead[0].lane, veh_ahead[0].speed, veh_ahead[0].accln)
+        return veh_ahead
+    
+    def print_vehicles(self):
+        for v in self.vehicles:
+            print(v.id, v.x, v.lane, v.speed, v.accln, v.length, v.width)
 
     def run(self):
         for i in range(self.length):
             if random.random() < FREQUENCY_OF_SPAWN:
                 self.spawn_vehicle()
+                veh = self.vehicles_ahead()
+                self.print_vehicles()
             for v in self.vehicles:
-                v.move()
+                v.move(self.vehicles)
                 if random.random() < 0.1:
                     v.change_lane(self.vehicles)
                 self.vehicles[:] = [v for v in self.vehicles if v.x < self.length]
