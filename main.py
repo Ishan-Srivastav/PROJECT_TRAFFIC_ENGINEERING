@@ -21,6 +21,7 @@ T_W_PROP = 30
 TH_W_PROP = 10
 NUM_VEH_CLASS = 4
 NUM_VEH_SIM = 100
+VEH_SPAWNED = []
 filename = "vehicles_spawned.csv"
 
 
@@ -109,6 +110,10 @@ class Simulation:
         ch.append(w)
         ch.append(s)
         ch.append(a)
+        ch.append(0)
+        if self.sim_traffic[0] == 0:
+            ch[4] = 1
+        
         return ch
 
     def spw_hcv(self):
@@ -128,6 +133,9 @@ class Simulation:
         ch.append(w)
         ch.append(s)
         ch.append(a)
+        ch.append(1)
+        if self.sim_traffic[0] == 0:
+            ch[4] = 2
 
         return ch
 
@@ -148,6 +156,9 @@ class Simulation:
         ch.append(w)
         ch.append(s)
         ch.append(a)
+        ch.append(2)
+        if self.sim_traffic[0] == 0:
+            ch[4] = 3
 
         return ch
 
@@ -168,6 +179,9 @@ class Simulation:
         ch.append(w)
         ch.append(s)
         ch.append(a)
+        ch.append(3)
+        if self.sim_traffic[0] == 0:
+            ch[4] = 0
 
         return ch
 
@@ -177,29 +191,33 @@ class Simulation:
         t = random.randint(0,NUM_VEH_CLASS-1)
         lane = random.randint(0, self.num_lanes - 1)
         char = []
+        g = None
         if self.sim_traffic[t]>0:        
             if t == 0:
                 print(f'{t} Generating lcv')
                 char = self.spw_lcv()
-            elif t == 1:
+                g = char[4]
+            if t == 1 or g == 1:
                 print(f'{t} Generating hcv')
                 char = self.spw_hcv()
-            elif t == 2:
+                g = char[4]
+            if t == 2 or g == 2:
                 print(f'{t} Generating 2-wheeler')
                 char = self.spw_tw()
-            elif t == 3:
+                g = char[4]
+            if t == 3 or g == 3:
                 print(f'{t} Generating 3-wheeler')
                 char = self.spw_thw()
+                g = char[4]
             self.sim_traffic[t] -= 1
             length = char[0]
             width = char[1]
             speed = char[2]
             acceleration = char[3]
-
             id = str(INDEX) + "_" + str(length) + "_" + str(width)
             self.vehicles.append(Vehicle(id, lane, speed, acceleration,length, width, self.time_interval))
+            VEH_SPAWNED.append(Vehicle(id, lane, speed, acceleration,length, width, self.time_interval))
         
-
     def vehicles_ahead(self):
         veh_ahead=[] 
         for v in range(len(self.vehicles)-1):
@@ -210,27 +228,35 @@ class Simulation:
     
     def csv_print_vehicles(self):
         rows =[[]]
-        for v in self.vehicles:
-            temp = [v.id, v.x, v.lane, v.speed, v.accln, v.length, v.width]
-            rows.append(temp)
         with open(filename, 'w', newline="") as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(rows)
+            # for v in self.vehicles:
+            #     temp = [v.id, v.x, v.lane, v.speed, v.accln, v.length, v.width]
+            #     # rows.append(temp)
+            #     csvwriter.writerow(temp)
+            for v in VEH_SPAWNED:
+                temp = [v.id, v.x, v.lane, v.speed, v.accln, v.length, v.width, v.time_update]
+                csvwriter.writerow(temp)
+
 
     def run(self):
         index = 1
         for i in range(self.length):
+
             if random.random() < FREQUENCY_OF_SPAWN:
                 self.spawn_vehicle(index)
-                # veh = self.vehicles_ahead()
                 index+=1
+
+
             for v in self.vehicles:
                 v.move(self.vehicles)
                 if random.random() < 0.1:
                     v.change_lane(self.vehicles)
                 self.vehicles[:] = [v for v in self.vehicles if v.x < self.length]
+            
             self.visualize()
             time.sleep(self.time_interval)
+        
         self.csv_print_vehicles()
 
     def visualize(self):
@@ -245,5 +271,5 @@ class Simulation:
 sim = Simulation(NO_OF_LANES, LENGTH_OF_ROAD, TIME_INTERVAL_PER_FRAME, LANE_WIDTH)
 
 sim.run()
-print(sim.vehicles)
+# print(sim.vehicles)
 plt.show()
